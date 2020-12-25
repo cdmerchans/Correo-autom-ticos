@@ -16,7 +16,7 @@ end findAndReplaceInText
 
 
 
-set sharesFileName to display dialog "¿Cuál es la ruta del archivo de texto con el mensaje base?" default answer "/Users/cristianmerchan/Desktop/Mensaje.txt" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+set sharesFileName to display dialog "¿Cuál es la ruta del archivo de texto con el mensaje base?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 set sharesFileName to text returned of sharesFileName
 set sharesLines to read sharesFileName as «class utf8»
 set sharesLines to splitText(sharesLines, "~")
@@ -35,32 +35,32 @@ end repeat
 
 set numeroDeVariables to count of listVaribles
 
-set rutaArchivo to display dialog "¿Cuál es la ruta del archivo de Excel?" default answer "/Users/cristianmerchan/Desktop/Notas.xlsx" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+set rutaArchivo to display dialog "¿Cuál es la ruta del archivo de Excel?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 set rutaArchivo to text returned of rutaArchivo
 
-set minimoDeEstudiantes to display dialog "¿Cuál es la fila del primer estudiante?" default answer "1" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
-set maximoDeEstudiantes to display dialog "¿Cuál es la fila del último estudiante?" default answer "1" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+set minimoDeEstudiantes to display dialog "¿Cuál es la fila del primer estudiante?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+set maximoDeEstudiantes to display dialog "¿Cuál es la fila del último estudiante?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 set minimoDeEstudiantes to text returned of minimoDeEstudiantes
 set maximoDeEstudiantes to text returned of maximoDeEstudiantes
 set minimoDeEstudiantes to minimoDeEstudiantes as integer
 set maximoDeEstudiantes to maximoDeEstudiantes as integer
 
-set correoSalida to display dialog "¿Desde qué correo quieres enviar los mensajes?" default answer "cdmerchans@icloud.com" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+set correoSalida to display dialog "¿Desde qué correo quieres enviar los mensajes?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 set correoSalida to text returned of correoSalida
 
-set asunto to display dialog "¿Cuál es el asunto del mensaje?" default answer "Prueba" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+set asunto to display dialog "¿Cuál es el asunto del mensaje?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 set asunto to text returned of asunto
 
 set colCorreoEstudiente to display dialog "¿En qué columna están los correos de los estudientes?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 set colCorreoEstudiente to text returned of colCorreoEstudiente
 
-set archivosAdjunto to {}
-set banderaAdjunto to display dialog "¿Quieres enviar un archivo adjunto diferentes para cada correo?" buttons {"No enviar adjunto", "Sí", "No"} default button "No"
+set banderaAdjunto to display dialog "¿Quieres enviar archivos adjuntos diferentes para cada correo?" buttons {"No enviar adjunto", "Sí", "No"} default button "No"
 
+set archivosAdjunto to {}
 if button returned of banderaAdjunto = "No" then
 	set archivoAdjuntoBoton to "Agregar"
 	repeat while archivoAdjuntoBoton is "Agregar"
-		set archivoAdjunto to display dialog "¿Cuál es la ruta del archivo adjunto?" default answer " " buttons {"Agregar", "Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+		set archivoAdjunto to display dialog "¿Cuál es la ruta del archivo adjunto general?" default answer "" buttons {"Agregar", "Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 		set archivoAdjuntoBoton to button returned of archivoAdjunto
 		set archivoAdjunto to text returned of archivoAdjunto
 		copy archivoAdjunto to the end of the archivosAdjunto
@@ -70,9 +70,14 @@ end if
 set banderaConfirmacion to display dialog "¿Quieres confirmar antes de enviar cada correo?" buttons {"Sí", "No"} default button "No"
 
 set banderaConfirmarTodos to "No"
+
 repeat with fila from minimoDeEstudiantes to maximoDeEstudiantes
 	set estudiante to {}
-    set archivosAdjunto to {}
+	
+	if button returned of banderaAdjunto = "Sí" then
+		set archivosAdjunto to {}
+	end if
+	
 	set sharesLines to read sharesFileName as «class utf8»
 	set sharesLines to splitText(sharesLines, "~")
 	repeat with j from 1 to numeroDeVariables
@@ -98,14 +103,12 @@ repeat with fila from minimoDeEstudiantes to maximoDeEstudiantes
 	if button returned of banderaAdjunto = "Sí" then
 		set archivoAdjuntoBoton to "Agregar"
 		repeat while archivoAdjuntoBoton is "Agregar"
-			set archivoAdjuntoBoton to display dialog "¿Cuál es la ruta del archivo adjunto para " & correoEstudiante & "?" default answer "" buttons {"Agregar","Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
+			set archivoAdjuntoBoton to display dialog "¿Cuál es la ruta del archivo adjunto para " & correoEstudiante & "?" default answer "" buttons {"Agregar", "Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"
 			set archivoAdjunto to text returned of archivoAdjuntoBoton
 			copy archivoAdjunto to the end of the archivosAdjunto
 			set archivoAdjuntoBoton to button returned of archivoAdjuntoBoton
 		end repeat
 	end if
-	
-	set banderaConfirmarTodos to "No"
 	
 	if button returned of banderaConfirmacion = "Sí" and banderaConfirmarTodos is "No" and button returned of banderaAdjunto is not "Sí" then
 		set confirmacion to display dialog "De: " & correoSalida & "
@@ -138,7 +141,7 @@ Adjunto: " & archivosAdjunto buttons {"Cancelar", "Enviar"} default button "Envi
 		set theContent to mensaje
 		
 		set theSignature to ""
-		set theDelay to 1
+		set theDelay to 5
 		
 		set theMessage to make new outgoing message with properties {sender:theFrom, subject:theSubject, content:theContent, visible:false}
 		tell theMessage
