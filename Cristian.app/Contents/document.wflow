@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AMApplicationBuild</key>
+	<string>509</string>
+	<key>AMApplicationVersion</key>
+	<string>2.10</string>
+	<key>AMDocumentVersion</key>
+	<string>2</string>
+	<key>actions</key>
+	<array>
+		<dict>
+			<key>action</key>
+			<dict>
+				<key>AMAccepts</key>
+				<dict>
+					<key>Container</key>
+					<string>List</string>
+					<key>Optional</key>
+					<true/>
+					<key>Types</key>
+					<array>
+						<string>com.apple.applescript.object</string>
+					</array>
+				</dict>
+				<key>AMActionVersion</key>
+				<string>1.0.2</string>
+				<key>AMApplication</key>
+				<array>
+					<string>Automator</string>
+				</array>
+				<key>AMParameterProperties</key>
+				<dict>
+					<key>source</key>
+					<dict/>
+				</dict>
+				<key>AMProvides</key>
+				<dict>
+					<key>Container</key>
+					<string>List</string>
+					<key>Types</key>
+					<array>
+						<string>com.apple.applescript.object</string>
+					</array>
+				</dict>
+				<key>ActionBundlePath</key>
+				<string>/System/Library/Automator/Run AppleScript.action</string>
+				<key>ActionName</key>
+				<string>Ejecutar AppleScript</string>
+				<key>ActionParameters</key>
+				<dict>
+					<key>source</key>
+					<string>on splitText(theText, theDelimiter)	set AppleScript's text item delimiters to theDelimiter	set theTextItems to every text item of theText	set AppleScript's text item delimiters to ""	return theTextItemsend splitTexton findAndReplaceInText(theText, theSearchString, theReplacementString)	set AppleScript's text item delimiters to theSearchString	set theTextItems to every text item of theText	set AppleScript's text item delimiters to theReplacementString	set theText to theTextItems as string	set AppleScript's text item delimiters to ""	return theTextend findAndReplaceInTextset sharesFileName to display dialog "¿Cuál es la ruta del archivo de texto con el mensaje base?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set sharesFileName to text returned of sharesFileNameset sharesLines to read sharesFileName as «class utf8»set sharesLines to splitText(sharesLines, "~")set listVaribles to {}set listColumns to {}repeat with theCurrentListItem in sharesLines	if theCurrentListItem starts with "&amp;" then		set theCurrentListItem to findAndReplaceInText(theCurrentListItem, "&amp;", "")		set ColumnVarible to display dialog "¿En cuál columna está la variable '" &amp; theCurrentListItem &amp; "'?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"		set ColumnVarible to text returned of ColumnVarible		copy ColumnVarible to the end of the listColumns		copy theCurrentListItem to the end of the listVaribles	end ifend repeatset numeroDeVariables to count of listVariblesset rutaArchivo to display dialog "¿Cuál es la ruta del archivo de Excel?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set rutaArchivo to text returned of rutaArchivoset minimoDeEstudiantes to display dialog "¿Cuál es la fila del primer estudiante?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set maximoDeEstudiantes to display dialog "¿Cuál es la fila del último estudiante?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set minimoDeEstudiantes to text returned of minimoDeEstudiantesset maximoDeEstudiantes to text returned of maximoDeEstudiantesset minimoDeEstudiantes to minimoDeEstudiantes as integerset maximoDeEstudiantes to maximoDeEstudiantes as integerset correoSalida to display dialog "¿Desde qué correo quieres enviar los mensajes?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set correoSalida to text returned of correoSalidaset asunto to display dialog "¿Cuál es el asunto del mensaje?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set asunto to text returned of asuntoset colCorreoEstudiente to display dialog "¿En qué columna están los correos de los estudientes?" default answer "" buttons {"Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"set colCorreoEstudiente to text returned of colCorreoEstudienteset banderaAdjunto to display dialog "¿Quieres enviar archivos adjuntos diferentes para cada correo?" buttons {"No enviar adjunto", "Sí", "No"} default button "No"set archivosAdjunto to {}if button returned of banderaAdjunto = "No" then	set archivoAdjuntoBoton to "Agregar"	repeat while archivoAdjuntoBoton is "Agregar"		set archivoAdjunto to display dialog "¿Cuál es la ruta del archivo adjunto general?" default answer "" buttons {"Agregar", "Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"		set archivoAdjuntoBoton to button returned of archivoAdjunto		set archivoAdjunto to text returned of archivoAdjunto		copy archivoAdjunto to the end of the archivosAdjunto	end repeatend ifset banderaConfirmacion to display dialog "¿Quieres confirmar antes de enviar cada correo?" buttons {"Sí", "No"} default button "No"set banderaConfirmarTodos to "No"repeat with fila from minimoDeEstudiantes to maximoDeEstudiantes	set estudiante to {}		if button returned of banderaAdjunto = "Sí" then		set archivosAdjunto to {}	end if		set sharesLines to read sharesFileName as «class utf8»	set sharesLines to splitText(sharesLines, "~")	repeat with j from 1 to numeroDeVariables		tell application "Microsoft Excel"			open rutaArchivo			set readValue to string value of cell (item j of listColumns &amp; fila)			copy readValue to the end of the estudiante			set correoEstudiante to string value of cell (colCorreoEstudiente &amp; fila)		end tell	end repeat	set i to 1	set j to 1	set mensaje to ""	repeat with theCurrentListItem in sharesLines		if theCurrentListItem starts with "&amp;" then			set item j of sharesLines to item i of estudiante			set i to i + 1		end if		set mensaje to mensaje &amp; item j of sharesLines		set j to j + 1	end repeat		if button returned of banderaAdjunto = "Sí" then		set archivoAdjuntoBoton to "Agregar"		repeat while archivoAdjuntoBoton is "Agregar"			set archivoAdjuntoBoton to display dialog "¿Cuál es la ruta del archivo adjunto para " &amp; correoEstudiante &amp; "?" default answer "" buttons {"Agregar", "Cancelar", "Continuar"} default button "Continuar" cancel button "Cancelar"			set archivoAdjunto to text returned of archivoAdjuntoBoton			copy archivoAdjunto to the end of the archivosAdjunto			set archivoAdjuntoBoton to button returned of archivoAdjuntoBoton		end repeat	end if		if button returned of banderaConfirmacion = "Sí" and banderaConfirmarTodos is "No" and button returned of banderaAdjunto is not "Sí" then		set confirmacion to display dialog "De: " &amp; correoSalida &amp; "Para: " &amp; correoEstudiante &amp; "Mensaje: " &amp; mensaje &amp; "Adjunto: " &amp; archivosAdjunto buttons {"Confirmar todos", "Cancelar", "Enviar"} default button "Enviar" cancel button "Cancelar"		if button returned of confirmacion = "Confirmar todos" then			set banderaConfirmarTodos to "Sí"		end if	end if		if button returned of banderaConfirmacion = "Sí" and banderaConfirmarTodos is "No" and button returned of banderaAdjunto is "Sí" then		set confirmacion to display dialog "De: " &amp; correoSalida &amp; "Para: " &amp; correoEstudiante &amp; "Mensaje: " &amp; mensaje &amp; "Adjunto: " &amp; archivosAdjunto buttons {"Cancelar", "Enviar"} default button "Enviar" cancel button "Cancelar"	end if			tell application "Mail"				set theFrom to correoSalida		set theTos to {correoEstudiante}		set theCcs to {""}		set theBccs to {""}				set theSubject to asunto		set theContent to mensaje				set theSignature to ""		set theDelay to 5				set theMessage to make new outgoing message with properties {sender:theFrom, subject:theSubject, content:theContent, visible:false}		tell theMessage			repeat with theTo in theTos				make new recipient at end of to recipients with properties {address:theTo}			end repeat			repeat with theCc in theCcs				make new cc recipient at end of cc recipients with properties {address:theCc}			end repeat			repeat with theBcc in theBccs				make new bcc recipient at end of bcc recipients with properties {address:theBcc}			end repeat		end tell		tell content of theMessage			repeat with theAttachment in archivosAdjunto				make new attachment with properties {file name:theAttachment} at after last paragraph				delay theDelay			end repeat		end tell		send theMessage			end tellend repeatset finalAplicacion to display dialog "Los mensajes fueron enviados."</string>
+				</dict>
+				<key>BundleIdentifier</key>
+				<string>com.apple.Automator.RunScript</string>
+				<key>CFBundleVersion</key>
+				<string>1.0.2</string>
+				<key>CanShowSelectedItemsWhenRun</key>
+				<false/>
+				<key>CanShowWhenRun</key>
+				<true/>
+				<key>Category</key>
+				<array>
+					<string>AMCategoryUtilities</string>
+				</array>
+				<key>Class Name</key>
+				<string>RunScriptAction</string>
+				<key>IgnoresInput</key>
+				<true/>
+				<key>InputUUID</key>
+				<string>23DC88AB-316B-46A5-93BB-E0A82BDB4B65</string>
+				<key>Keywords</key>
+				<array>
+					<string>Ejecutar</string>
+				</array>
+				<key>OutputUUID</key>
+				<string>94B797D5-2910-4DE3-8EE4-9D838B3F5C8E</string>
+				<key>UUID</key>
+				<string>7A0E55C3-20EC-4BC0-9564-D71666FC64F2</string>
+				<key>UnlocalizedApplications</key>
+				<array>
+					<string>Automator</string>
+				</array>
+				<key>arguments</key>
+				<dict>
+					<key>0</key>
+					<dict>
+						<key>default value</key>
+						<string>on run {input, parameters}
+	
+	(* Your script goes here *)
+	
+	return input
+end run</string>
+						<key>name</key>
+						<string>source</string>
+						<key>required</key>
+						<string>0</string>
+						<key>type</key>
+						<string>0</string>
+						<key>uuid</key>
+						<string>0</string>
+					</dict>
+				</dict>
+				<key>isViewVisible</key>
+				<integer>1</integer>
+				<key>location</key>
+				<string>384.500000:621.000000</string>
+				<key>nibPath</key>
+				<string>/System/Library/Automator/Run AppleScript.action/Contents/Resources/Base.lproj/main.nib</string>
+			</dict>
+			<key>isViewVisible</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>connectors</key>
+	<dict/>
+	<key>workflowMetaData</key>
+	<dict>
+		<key>workflowTypeIdentifier</key>
+		<string>com.apple.Automator.application</string>
+	</dict>
+</dict>
+</plist>
